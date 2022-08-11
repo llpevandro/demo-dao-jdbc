@@ -59,33 +59,43 @@ public class SellerDaoJDBC implements SellerDao{
 					rs = st.executeQuery();
 					//abaixo, testar se veio resultado. Se 'não', retorna nulo, se 'sim' passa pela condição
 					if (rs.next()) {
-						Department dep = new Department();
-						dep.setId(rs.getInt("DepartmentId")); //acessa a coluna DepartmentId
-						dep.setName(rs.getString("Depname"));
-						
-						Seller obj = new Seller();
-						obj.setId(rs.getInt("Id"));
-						obj.setName(rs.getString("Name"));
-						obj.setEmail(rs.getString("Email"));
-						obj.setBaseSalary(rs.getDouble("BaseSalary"));
-						obj.setBirthDate(rs.getDate("BirthDate"));
-						obj.setDepartment(dep); //pegando o objeto department
-						return obj;
-						
+						Department dep = instantiateDepartment(rs);
+						Seller obj = InstantiateSeller(rs, dep);						
+						return obj;						
 					}
 					return null;
-			}
-		
+			}		
 		catch(SQLException e){
-			throw new DbException(e.getMessage());
-			
-		}
-		
+			throw new DbException(e.getMessage());			
+		}		
 		finally {
 			DB.closeStatement(st);
 			DB.closeResultSet(rs);
 		}
 	}
+
+	private Seller InstantiateSeller(ResultSet rs, Department dep) throws SQLException {
+		Seller obj = new Seller();
+		obj.setId(rs.getInt("Id"));
+		obj.setName(rs.getString("Name"));
+		obj.setEmail(rs.getString("Email"));
+		obj.setBaseSalary(rs.getDouble("BaseSalary"));
+		obj.setBirthDate(rs.getDate("BirthDate"));
+		obj.setDepartment(dep); //pegando o objeto department
+		
+		return obj;
+	}
+
+
+
+	private Department instantiateDepartment(ResultSet rs) throws SQLException {
+		Department dep = new Department();
+		dep.setId(rs.getInt("DepartmentId")); //acessa a coluna DepartmentId
+		dep.setName(rs.getString("Depname"));
+		return dep;
+	}
+
+
 
 	@Override
 	public List<Seller> findAll() {
